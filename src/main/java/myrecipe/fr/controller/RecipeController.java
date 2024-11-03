@@ -23,16 +23,33 @@ public class RecipeController {
         return ResponseEntity.ok().body(recipeService.getAllRecipes());
     }
 
-    @PostMapping
-    public ResponseEntity<RecipeDTO> createRecipe(@RequestBody RecipeDTO recipeDTO) {
-        return ResponseEntity.ok().body(recipeService.createRecipe(recipeDTO));
-    }
-
     @GetMapping(path = "/{id}")
     public ResponseEntity<RecipeDTO> getRecipe(@PathVariable long id) {
         return ResponseEntity.ok().body(recipeService.getRecipe(id));
     }
 
+    // Création d'une recette avec URL de l'image, étapes et ingrédients
+    @PostMapping
+    public ResponseEntity<RecipeDTO> createRecipe(@RequestBody RecipeDTO recipeDTO) {
+        return ResponseEntity.ok().body(this.recipeService.createRecipe(recipeDTO));
+    }
 
+    // Mise à jour de l'URL de l'image de la recette
+    @PostMapping("/update-image")
+    public ResponseEntity<RecipeDTO> updateRecipeImage(@RequestParam String recipeId, @RequestParam String imageUrl) {
+        return ResponseEntity.ok().body(this.recipeService.updateImageUrlRecipe(recipeId, imageUrl));
+    }
+
+    // Mise à jour d'une recette complète avec un objet RecipeDTO
+    @PutMapping("/{id}")
+    public ResponseEntity<RecipeDTO> updateRecipe(@PathVariable long id, @RequestBody RecipeDTO recipeDTO) {
+        return ResponseEntity.ok().body(recipeService.updateRecipe(id, recipeDTO));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteRecipe(@PathVariable long id) {
+        recipeService.deleteRecipe(id);
+        return ResponseEntity.noContent().build();
+    }
 
 }

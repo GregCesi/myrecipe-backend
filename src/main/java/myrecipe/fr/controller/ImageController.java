@@ -22,16 +22,20 @@ public class ImageController {
         this.imageService = imageService;
     }
 
-    @PostMapping("/recipe")
-    public ResponseEntity<RecipeDTO> uploadRecipeImage(@RequestParam("recipeId") String recipeId, @RequestParam("imageFile") MultipartFile imageFile) throws IOException {
-
+    // Endpoint pour uploader une image et retourner l'URL
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> uploadImage(@RequestParam("imageFile") MultipartFile imageFile) throws IOException {
         if (imageFile.isEmpty()) {
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.badRequest().body("Image file is empty");
         }
 
-        return ResponseEntity.ok().body(recipeService.updateImageUrlRecipe(recipeId, imageFile));
+        // Stocke l'image et génère le nom du fichier
+        String imageUrl = imageService.uploadRecipeImage(imageFile);
+
+        return ResponseEntity.ok(imageUrl); // Retourne l'URL d'accès
     }
 
+    // Endpoint pour récupérer l'image par son nom
     @GetMapping(path = "/{image}")
     public ResponseEntity<byte[]> getImage(@PathVariable String image) throws IOException {
 
@@ -42,7 +46,7 @@ public class ImageController {
             return ResponseEntity.ok()
                     .contentType(MediaType.IMAGE_PNG)
                     .body(imageData);
-        } else {                  
+        } else {
             // Si l'image n'est pas trouvée, retourner une réponse 404 Not Found
             return ResponseEntity.ok().build();
         }

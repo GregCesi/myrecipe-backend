@@ -30,35 +30,36 @@ public class ImageService {
 
     }
 
-    public byte[] getImage(String imageName) throws IOException {
-
-        String imagesDirectory = "images/";
-
-        Resource resource = new ClassPathResource(imagesDirectory + imageName);
-        return Files.readAllBytes(Path.of(resource.getURI()));
-
-    }
-
     public String uploadRecipeImage(MultipartFile imageFile) throws IOException {
-
-        // Générer un nom de fichier unique (TODO : Uniquement UUID + Substract nom du fichier jusquau . pour avoir le format (png jpeg)
+        // Génère un nom unique pour le fichier
         String fileName = UUID.randomUUID().toString() + "_" + imageFile.getOriginalFilename();
-
-        // Créer le chemin d'accès complet pour enregistrer le fichier
         Path uploadPath = Paths.get(UPLOAD_DIR);
         Path filePath = uploadPath.resolve(fileName);
 
-        // Vérifier si le répertoire d'upload existe, sinon le créer
+        // Crée le répertoire d'upload s'il n'existe pas
         Files.createDirectories(uploadPath);
-
-        // Copier le contenu du fichier dans le répertoire d'upload
         FileCopyUtils.copy(imageFile.getInputStream(), Files.newOutputStream(filePath));
 
-        // Construire et retourner l'URL de l'image
-        String imageUrl = fileName; // URL relative
-        // String imageUrl = "http://localhost:8080/images/" + fileName; // URL absolue
+        return fileName; // Retourne le nom du fichier
+    }
 
-        return imageUrl;
+    public byte[] getImage(String imageName) throws IOException {
+        Path imagePath = Paths.get(UPLOAD_DIR + imageName);
+        if (Files.exists(imagePath)) {
+            return Files.readAllBytes(imagePath);
+        } else {
+            return null;
+        }
+    }
+
+    public void deleteImageFile(String imageUrl) {
+        try {
+            Path imagePath = Paths.get(UPLOAD_DIR).resolve(imageUrl).normalize();
+            Files.deleteIfExists(imagePath); // Supprime l'image si elle existe
+        } catch (IOException e) {
+            e.printStackTrace();
+            // Vous pouvez ajouter une gestion d’erreur supplémentaire ici
+        }
     }
 
 }
